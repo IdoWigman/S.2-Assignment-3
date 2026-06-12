@@ -6,6 +6,7 @@ import java.util.List;
 abstract public class AbstractSkipList {
     final protected SkipListNode head;
     final protected SkipListNode tail;
+    private int size = 0;
 
     public AbstractSkipList() {
         head = new SkipListNode(Integer.MIN_VALUE);
@@ -16,6 +17,7 @@ abstract public class AbstractSkipList {
     public void increaseHeight() {
         head.addLevel(tail, null);
         tail.addLevel(null, head);
+        head.setWidth(head.height(), size+1);
     }
 	
     abstract void decreaseHeight();
@@ -43,34 +45,68 @@ abstract public class AbstractSkipList {
         }
 
         SkipListNode newNode = new SkipListNode(key);
+        int widthCounter = 1;
 
         for (int level = 0; level <= nodeHeight && prevNode != null; ++level) {
             SkipListNode nextNode = prevNode.getNext(level);
+            int oldWidth = prevNode.getWidth(level);
 
             newNode.addLevel(nextNode, prevNode);
+            newNode.setWidth(level, oldWidth - widthCounter + 1);
             prevNode.setNext(level, newNode);
             nextNode.setPrev(level, newNode);
+            prevNode.setWidth(level, widthCounter);
 
             while (prevNode != null && prevNode.height() == level) {
                 prevNode = prevNode.getPrev(level);
+                if (prevNode != null)
+                    widthCounter += prevNode.getWidth(level);
             }
         }
+
+        for (int level = nodeHeight + 1; level <= head.height(); ++level) {
+            while (prevNode != null && prevNode.height() < level) {
+                prevNode = prevNode.getPrev(level - 1);
+            }
+
+            if (prevNode != null) {
+                prevNode.setWidth(level, prevNode.getWidth(level) + 1);
+            }
+        }
+
+        this.size++;
 
         return newNode;
     }
 
     public boolean delete(SkipListNode skipListNode) {
+        SkipListNode currentPrev = null;
         for (int level = 0; level <= skipListNode.height(); ++level) {
+            int deletedWidth = skipListNode.getWidth(level);
             SkipListNode prev = skipListNode.getPrev(level);
             SkipListNode next = skipListNode.getNext(level);
             prev.setNext(level, next);
+            prev.setWidth(level, prev.getWidth(level) + deletedWidth - 1);
             next.setPrev(level, prev);
+            currentPrev = prev;
+        }
+
+        for (int level = skipListNode.height() + 1; level <= head.height(); ++level) {
+            while (currentPrev != null && currentPrev.height() < level) {
+                currentPrev = currentPrev.getPrev(level - 1);
+            }
+
+            if (currentPrev != null) {
+                // Decrement the overpass width by 1
+                currentPrev.setWidth(level, currentPrev.getWidth(level) - 1);
+            }
         }
 		
         while (head.height() >= 0 && head.getNext(head.height()) == tail) {
         	decreaseHeight();
         }
 
+        this.size--;
         return true;
     }
 
@@ -134,13 +170,23 @@ abstract public class AbstractSkipList {
         final private List<SkipListNode> next;
         final private List<SkipListNode> prev;
         private int height;
+        private ArrayList<Integer> widths;
 
         public SkipListNode(int key) {
         	super(key);
             next = new ArrayList<>();
             prev = new ArrayList<>();
             this.height = -1;
+            widths = new ArrayList<>();
             
+        }
+
+        public int getWidth(int row) {
+            return widths.get(row);
+        }
+
+        public void setWidth(int row, int width) {
+            this.widths.set(row, width) ;
         }
 
         public SkipListNode getPrev(int level) {
@@ -179,12 +225,15 @@ abstract public class AbstractSkipList {
             ++height;
             this.next.add(next);
             this.prev.add(prev);
+            this.widths.add(1);
+
         }
 		
 		public void removeLevel() {           
             this.next.remove(height);
             this.prev.remove(height);
             --height;
+            this.widths.remove(height);
         }
 
         public int height() { return height; }
