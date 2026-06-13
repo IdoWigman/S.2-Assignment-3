@@ -94,7 +94,18 @@ public class ProbingHashTable<K, V> implements HashTable<K, V> {
     }
 
     public boolean delete(K key) {
-        throw new UnsupportedOperationException("Delete this line and replace it with your implementation");
+        if (search(key) == null) {
+            return false;
+        }
+        int index = hashFunc.hash(key);
+        Element<K,V> element = table[index];
+        while ((!element.key().equals(key)) || (element.getIsDeleted())) {
+            index++;
+            element = table[index % capacity];
+        }
+        element.setIsDeleted(true);
+        size--;
+        return true;
     }
 
     public HashFunctor<K> getHashFunc() {
