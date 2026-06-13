@@ -69,7 +69,28 @@ public class ProbingHashTable<K, V> implements HashTable<K, V> {
     }
 
     private void rehash() {
+        Element<K,V>[] oldTable = this.table;
+        capacity = capacity << 1;
+        this.table = new Element[capacity];
 
+        int k = 0;
+        int tempCapacity = capacity;
+        while (tempCapacity > 1) {
+            tempCapacity = tempCapacity >> 1;
+            k++;
+        }
+        this.hashFunc = hashFactory.pickHash(k);
+
+        for (Element<K, V> element : oldTable) {
+            if ((element != null) && (!element.getIsDeleted())) {
+                int hash = hashFunc.hash(element.key());
+                int index = hash;
+                while (this.table[index % capacity] != null) {
+                    index++;
+                }
+                this.table[index % capacity] = element;
+            }
+        }
     }
 
     public boolean delete(K key) {
