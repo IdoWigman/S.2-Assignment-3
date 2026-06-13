@@ -28,7 +28,17 @@ public class ProbingHashTable<K, V> implements HashTable<K, V> {
     }
 
     public V search(K key) {
-        throw new UnsupportedOperationException("Delete this line and replace it with your implementation");
+        int hash = hashFunc.hash(key);
+        int index = hash;
+        Element<K,V> element = table[index];
+        while ((index < hash + capacity) && (element != null)) {
+            if (element.key().equals(key) && !element.getIsDeleted()) {
+                return element.satelliteData();
+            }
+            index++;
+            element = table[index % capacity];
+        }
+        return null;
     }
 
     public void insert(K key, V value) {
