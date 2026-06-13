@@ -2,14 +2,16 @@ import java.util.Random;
 
 public class MultiplicativeShiftingHash implements HashFactory<Long> {
     private HashingUtils utils;
+    private Random rand;
 
     public MultiplicativeShiftingHash() {
-        throw new UnsupportedOperationException("Delete this line and replace it with your implementation");
+        utils = new HashingUtils();
+        this.rand = new Random();
     }
 
     @Override
     public HashFunctor<Long> pickHash(int k) {
-        throw new UnsupportedOperationException("Delete this line and replace it with your implementation");
+        return new Functor(k);
     }
 
     public class Functor implements HashFunctor<Long> {
@@ -18,11 +20,14 @@ public class MultiplicativeShiftingHash implements HashFactory<Long> {
         final private long k;
 
         public Functor(int k) {
-            throw new UnsupportedOperationException("Delete this line and replace it with your implementation");
+            this.k = k;
+            a = rand.nextLong(2L, Long.MAX_VALUE);
         }
         @Override
         public int hash(Long key) {
-            throw new UnsupportedOperationException("Delete this line and replace it with your implementation");
+            long mult = a * key;
+            long hash = mult >>> (WORD_SIZE - k);
+            return (int) hash;
         }
 
         public long a() {
