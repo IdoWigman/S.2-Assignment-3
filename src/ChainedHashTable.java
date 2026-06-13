@@ -29,7 +29,17 @@ public class ChainedHashTable<K, V> implements HashTable<K, V> {
     }
 
     public V search(K key) {
-        throw new UnsupportedOperationException("Delete this line and replace it with your implementation");
+        int hash = hashFunc.hash(key);
+        List<Element<K, V>> bucket = table[hash];
+        if (bucket == null) {
+            return null;
+        }
+        for (Element<K,V> element : bucket) {
+            if (element.key().equals(key)) {
+                return element.satelliteData();
+            }
+        }
+        return null;
     }
 
     public void insert(K key, V value) {
