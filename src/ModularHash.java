@@ -22,10 +22,10 @@ public class ModularHash implements HashFactory<Integer> {
 
         public Functor(int k){
             this.m = (int) Math.pow(2,k);
-            long lower = 2147483648L; // Integer.MAX_VALUE + 1
-            long higher = 2147583648L; // lowerBound + 100,000
+            long lower = 2147483648L;
+            long higher = Long.MAX_VALUE;
             this.p = utils.genPrime(lower, higher);
-            this.a = rand.nextInt(Integer.MAX_VALUE) + 1;
+            this.a = (rand.nextInt(Integer.MAX_VALUE) + 1);
             this.b = rand.nextInt(Integer.MAX_VALUE);
         }
 
