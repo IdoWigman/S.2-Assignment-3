@@ -42,7 +42,34 @@ public class ProbingHashTable<K, V> implements HashTable<K, V> {
     }
 
     public void insert(K key, V value) {
-        throw new UnsupportedOperationException("Delete this line and replace it with your implementation");
+        if (search(key) != null) {
+            return;
+        }
+        int hash = hashFunc.hash(key);
+        int index = hash;
+        Element<K,V> element = table[index];
+        while ((index < hash + capacity) && (element != null) && (!element.getIsDeleted())) {
+            index++;
+            element = table[index % capacity];
+        }
+        if ((element == null) || (element.getIsDeleted())) {
+            if (element != null) {
+                element.setIsDeleted(false);
+                element.setKey(key);
+                element.setSatData(value);
+            }
+            else  {
+                table[index % capacity] =  new Element<>(key, value);
+            }
+            size++;
+            if ((float) size / capacity >= maxLoadFactor) {
+                rehash();
+            }
+        }
+    }
+
+    private void rehash() {
+
     }
 
     public boolean delete(K key) {
