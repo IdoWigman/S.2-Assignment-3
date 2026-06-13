@@ -44,11 +44,14 @@ public class ChainedHashTable<K, V> implements HashTable<K, V> {
         if (search(key) != null) {
             return;
         }
-        if ((double) size / capacity >= maxLoadFactor)
+        if ((double) (size + 1) / capacity >= maxLoadFactor) {
             rehash();
+        }
         int hash = hashFunc.hash(key);
-        List<Element<K, V>> bucket = table[hash];
-        bucket.add(new Element<>(key, value));
+        if (table[hash] == null) {
+            table[hash] = new LinkedList<>();
+        }
+        table[hash].add(new Element<>(key, value));
         size++;
     }
 
