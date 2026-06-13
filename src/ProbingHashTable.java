@@ -12,9 +12,7 @@ public class ProbingHashTable<K, V> implements HashTable<K, V> {
     private Element<K,V>[] table;
 
 
-    /*
-     * You should add additional private fields as needed.
-     */
+    private int size = 0;
 
     public ProbingHashTable(HashFactory<K> hashFactory, int k, double maxLoadFactor) {
         this.hashFactory = hashFactory;

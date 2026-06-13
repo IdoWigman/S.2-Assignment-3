@@ -8,6 +8,7 @@ public class Element<K,V> {
 //--------------------fields-------------------------------------------
 	private K key;
 	private V satelliteData;
+	private boolean isDeleted;
 
 //--------------------constructors-------------------------------------
 	public Element(K key, V satelliteData) {
@@ -54,7 +55,15 @@ public class Element<K,V> {
         }        
         return ans;
 	}
-	
+
+	public boolean getIsDeleted() {
+		return this.isDeleted;
+	}
+
+	public void setIsDeleted(boolean isDeleted) {
+		this.isDeleted = isDeleted;
+	}
+
 	public String toString() {
 		return "[" + this.key() + "]";
 		//return "[" + this.key() + ", " + this.satelliteData() + "]";
