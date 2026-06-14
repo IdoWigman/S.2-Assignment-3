@@ -26,6 +26,10 @@ public class ChainedHashTable<K, V> implements HashTable<K, V> {
 
     }
 
+    public int getSize() {
+        return size;
+    }
+
     public V search(K key) {
         int hash = hashFunc.hash(key);
         List<Element<K, V>> bucket = table[hash];

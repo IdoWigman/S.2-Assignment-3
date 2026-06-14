@@ -94,7 +94,33 @@ public class HashingExperimentUtils {
     }
 
     public static double[] measureInsertionsChaining() {
-        throw new UnsupportedOperationException("Delete this line and replace it with your implementation");
+        double[] results = new double[CHAINING_ALPHAS.length];
+
+        HashFactory hashFactory = new MultiplicativeShiftingHash();
+        for (int i = 0; i < CHAINING_ALPHAS.length; i++) {
+            double currentAlpha = CHAINING_ALPHAS[i];
+            int numElementsToInsert = (int) (Math.pow(2, 16) * currentAlpha);
+            double totalAlphaTime = 0;
+
+            for (int exp =  0; exp < NUM_EXPERIMENTS; exp++) {
+                long totalExpTime = 0;
+                ChainedHashTable hashTable = new ChainedHashTable(hashFactory, k, 2.1);
+                while (hashTable.getSize() < numElementsToInsert) {
+                    int randomKey = RANDOM.nextInt();
+                    int randomValue = RANDOM.nextInt();
+                    int sizeBefore = hashTable.getSize();
+                    long start = System.nanoTime();
+                    hashTable.insert(randomKey, randomValue);
+                    long finish = System.nanoTime();
+                    if (hashTable.getSize() > sizeBefore) {
+                        totalExpTime += (finish - start);
+                    }
+                }
+                totalAlphaTime += ((double) totalExpTime/ numElementsToInsert);
+            }
+            results[i] = totalAlphaTime /NUM_EXPERIMENTS;
+        }
+        return results;
     }
 
     public static double[] measureSearchesChaining() {
