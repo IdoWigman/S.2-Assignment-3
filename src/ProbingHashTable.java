@@ -27,6 +27,10 @@ public class ProbingHashTable<K, V> implements HashTable<K, V> {
         this(hashFactory, DEFAULT_INIT_CAPACITY, DEFAULT_MAX_LOAD_FACTOR);
     }
 
+    public int getSize() {
+        return size;
+    }
+
     public V search(K key) {
         int hash = hashFunc.hash(key);
         int index = hash;

@@ -1,10 +1,41 @@
 import java.util.Collections; // can be useful
+import java.util.Random;
 
 public class HashingExperimentUtils {
     final private static int k = 16;
+    private static final int NUM_EXPERIMENTS = 30;
+    private static final double[] PROBING_ALPHAS = {0.5, 0.75, 0.875, 0.9375};
+    private static final double[] CHAINING_ALPHAS = {0.5, 0.75, 1.0, 1.5, 2.0};
+    private static final Random RANDOM = new Random();
 
     public static double[] measureInsertionsProbing() {
-        throw new UnsupportedOperationException("Delete this line and replace it with your implementation");
+        double[] results = new double[PROBING_ALPHAS.length];
+
+        HashFactory hashFactory = new MultiplicativeShiftingHash();
+        for (int i = 0; i < PROBING_ALPHAS.length; i++) {
+            double currentAlpha = PROBING_ALPHAS[i];
+            int numElementsToInsert = (int) (Math.pow(2, 16) * currentAlpha);
+            double totalAlphaTime = 0;
+
+            for (int exp =  0; exp < NUM_EXPERIMENTS; exp++) {
+                long totalExpTime = 0;
+                ProbingHashTable hashTable = new ProbingHashTable(hashFactory, k, 1);
+                while (hashTable.getSize() < numElementsToInsert) {
+                    Integer randomKey = RANDOM.nextInt();
+                    Integer randomValue = RANDOM.nextInt();
+                    int sizeBefore = hashTable.getSize();
+                    long start = System.nanoTime();
+                    hashTable.insert(randomKey, randomValue);
+                    long finish = System.nanoTime();
+                    if (hashTable.getSize() > sizeBefore) {
+                        totalExpTime += (finish - start);
+                    }
+                }
+                totalAlphaTime += ((double) totalExpTime/ numElementsToInsert);
+            }
+            results[i] = totalAlphaTime /NUM_EXPERIMENTS;
+        }
+        return results;
     }
 
     public static double[] measureSearchesProbing() {
