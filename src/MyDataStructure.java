@@ -23,26 +23,50 @@ public class MyDataStructure {
      * you should REMOVE the place-holder return statements.
      */
     public boolean insert(int value) {
-        return false;
+        if (contains(value)) {
+            return false;
+        }
+        AbstractSkipList.SkipListNode newNode = skipList.insert(value);
+        hashTable.insert((long) value, newNode);
+        return true;
     }
 
     public boolean delete(int value) {
-        return false;
+        AbstractSkipList.SkipListNode nodeToDelete = hashTable.search((long) value);
+        if (nodeToDelete == null) {
+            return false;
+        }
+        skipList.delete(nodeToDelete);
+        hashTable.delete((long) value);
+        return true;
     }
 
     public boolean contains(int value) {
-        return false;
+        return hashTable.search((long) value) != null;
     }
 
     public int rank(int value) {
-        return -1;
+        return skipList.rank(value);
     }
 
     public int select(int index) {
-        return Integer.MIN_VALUE;
+        return skipList.select(index);
     }
 
     public List<Integer> range(int low, int high) {
-        return null;
+        AbstractSkipList.SkipListNode curr = hashTable.search((long) low);
+
+        if (curr == null) {
+            return null;
+        }
+
+        List<Integer> result = new ArrayList<>();
+
+        while (curr != null && (int) curr.key() <= high) {
+            result.add((int) curr.key());
+            curr = curr.getNext(0);
+        }
+
+        return result;
     }
 }
