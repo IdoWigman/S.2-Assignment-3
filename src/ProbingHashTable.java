@@ -83,8 +83,7 @@ public class ProbingHashTable<K, V> implements HashTable<K, V> {
 
         for (Element<K, V> element : oldTable) {
             if ((element != null) && (!element.getIsDeleted())) {
-                int hash = hashFunc.hash(element.key());
-                int index = hash;
+                int index = hashFunc.hash(element.key());
                 while (this.table[index % capacity] != null) {
                     index++;
                 }
