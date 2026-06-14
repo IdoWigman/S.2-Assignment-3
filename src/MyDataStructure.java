@@ -2,18 +2,21 @@ import java.util.List;
 import java.util.ArrayList;
 
 public class MyDataStructure {
-    /*
-     * You may add any fields that you wish to add.
-     * Remember that all the data-structures you use must be YOUR implementations,
-     * except for the List and its implementation for the operation Range(low, high).
-     */
+
+    IndexableSkipList skipList;
+    ChainedHashTable<Long, AbstractSkipList.SkipListNode> hashTable;
 
     /***
      * This function is the Init function described in Part 4.
      *
      * @param N The maximal number of items that may reside in the DS.
      */
-    public MyDataStructure(int N) {}
+    public MyDataStructure(int N) {
+        this.skipList = new IndexableSkipList(N);
+        HashFactory<Long> hashFactory = new MultiplicativeShiftingHash();
+        int k = (int) Math.ceil(Math.log(N) / Math.log(2));
+        this.hashTable = new ChainedHashTable<>(hashFactory, k, 2.0);
+    }
 
     /*
      * In the following functions,
