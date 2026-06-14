@@ -1,5 +1,7 @@
 import java.util.Collections; // can be useful
 import java.util.Random;
+import java.util.List;
+import java.util.ArrayList;
 
 public class HashingExperimentUtils {
     final private static int k = 16;
@@ -21,8 +23,8 @@ public class HashingExperimentUtils {
                 long totalExpTime = 0;
                 ProbingHashTable hashTable = new ProbingHashTable(hashFactory, k, 1);
                 while (hashTable.getSize() < numElementsToInsert) {
-                    Integer randomKey = RANDOM.nextInt();
-                    Integer randomValue = RANDOM.nextInt();
+                    int randomKey = RANDOM.nextInt();
+                    int randomValue = RANDOM.nextInt();
                     int sizeBefore = hashTable.getSize();
                     long start = System.nanoTime();
                     hashTable.insert(randomKey, randomValue);
@@ -39,7 +41,56 @@ public class HashingExperimentUtils {
     }
 
     public static double[] measureSearchesProbing() {
-        throw new UnsupportedOperationException("Delete this line and replace it with your implementation");
+        double[] results = new double[PROBING_ALPHAS.length];
+
+        HashFactory hashFactory = new MultiplicativeShiftingHash();
+        for (int i = 0; i < PROBING_ALPHAS.length; i++) {
+            double currentAlpha = PROBING_ALPHAS[i];
+            int numElementsToInsert = (int) (Math.pow(2, 16) * currentAlpha);
+            double totalAlphaTime = 0;
+            for (int exp = 0; exp < NUM_EXPERIMENTS; exp++) {
+                long totalExpTime = 0;
+                ProbingHashTable<Integer, Integer> hashTable = new ProbingHashTable<>(hashFactory, k, 1);
+                List<Integer> insertedKeys = new ArrayList<>();
+
+                while (hashTable.getSize() < numElementsToInsert) {
+                    int randomKey = RANDOM.nextInt();
+                    int randomValue = RANDOM.nextInt();
+
+                    int sizeBefore = hashTable.getSize();
+                    hashTable.insert(randomKey, randomValue);
+
+                    if (hashTable.getSize() > sizeBefore) {
+                        insertedKeys.add(randomKey);
+                    }
+                }
+
+                int totalSearches = numElementsToInsert;
+                int[] searchQueries = new int[totalSearches];
+                for (int j = 0; j < totalSearches / 2; j++) {
+                    int randomIndex = RANDOM.nextInt(insertedKeys.size());
+                    searchQueries[j] = insertedKeys.get(randomIndex);
+                }
+
+                for (int j = totalSearches / 2; j < totalSearches; j++) {
+                    int badKey = RANDOM.nextInt();
+                    while (hashTable.search(badKey) != null) {
+                        badKey = RANDOM.nextInt();
+                    }
+                    searchQueries[j] = badKey;
+                }
+
+                long start = System.nanoTime();
+                for (int j = 0; j < totalSearches; j++) {
+                    hashTable.search(searchQueries[j]);
+                }
+                long finish = System.nanoTime();
+                totalExpTime += (finish - start);
+                totalAlphaTime += ((double) totalExpTime / totalSearches);
+            }
+            results[i] = totalAlphaTime /NUM_EXPERIMENTS;
+        }
+        return results;
     }
 
     public static double[] measureInsertionsChaining() {
